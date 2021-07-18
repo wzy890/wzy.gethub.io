@@ -7,19 +7,20 @@
 5、下载秘钥，进行解密操作
 6、合并所有ts文件为一个mp4文件
 '''
-# url = "https://vod.bunediy.com/20210715/PrYG1Aqa/index.m3u8"
-# import requests
-#
-# resp = requests.get(url)
-# with open("video/index.m3u8", mode="wb") as f:
-#     f.write(resp.content)
-#     f.close()
-# resp.close()
-# print("m3u8 download over")
 
+import requests
 import aiohttp
 import asyncio
 import aiofiles
+import os
+
+url = "https://vod.bunediy.com/20210715/PrYG1Aqa/index.m3u8"
+resp = requests.get(url)
+with open("video/index.m3u8", mode="wb") as f:
+    f.write(resp.content)
+    f.close()
+resp.close()
+print("m3u8 download over")
 
 async def ts_download(url, name, session):
     async with session.get(url) as resp:
@@ -41,8 +42,27 @@ async def aio_download():
                     tasks.append(task)
             await asyncio.wait(tasks)
 
+def merge_ts():
+    # mac: cat 1.ts 2.ts 3.ts > xxx.mp4
+    # windows: copy /b 1.ts+2.ts+3.ts xxx.mp4
+    list = []
+    with open("video/index.m3u8", mode="r", encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("#"):
+                continue
+            line = line.strip()
+            name = line.rsplit("/", 1)[-1]
+            list.append(f"video/{name}")
+            s = " ".join(list)
+            os.system(f"cat {s} > movie.mp4")
+        print("搞定！")
+
 if __name__ == '__main__':
+    print("正在下载越狱第一集ts文件...")
     asyncio.run(aio_download())
-    print("越狱第一集下载完毕")
+    print("越狱第一集ts文件下载完毕")
+    print("正在合并ts文件...")
+    merge_ts()
+    print("搞定！")
 
 
