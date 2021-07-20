@@ -1,4 +1,4 @@
-import requests
+import requests 
 url = "http://api.soyiji.com//news_jpg"
 resp = requests.get(url)
 
